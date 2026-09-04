@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p _old_static)",
+      "Bash(mv index.html script.js styles.css assets package-lock.json _old_static/)",
+      "Bash(npx create-next-app@latest *)",
+      "Bash(npm install *)"
+    ]
+  }
+}

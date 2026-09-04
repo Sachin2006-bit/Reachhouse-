@@ -1,0 +1,48 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --rh-navy:        #0D1321;
+  --rh-navy-raised: #131B2E;
+  --rh-card:        #171F33;
+  --rh-card-hover:  #1B2743;
+  --rh-border:      #2A3654;
+  --rh-blue:        #1F60FD;
+  --rh-blue-hover:  #1A52D6;
+  --rh-blue-soft:   #7FA6FF;
+  --rh-white:       #FFFFFF;
+  --rh-text:        #E8ECF5;
+  --rh-muted:       #9AA6C2;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background-color: var(--rh-navy);
+  color: var(--rh-text);
+  font-family: var(--font-inter), sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Focus rings */
+:focus-visible {
+  outline: 2px solid var(--rh-blue);
+  outline-offset: 2px;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--rh-navy); }
+::-webkit-scrollbar-thumb { background: var(--rh-border); border-radius: 3px; }
+
+@keyframes scroll-pulse {
+  0%, 100% { transform: translateY(0); opacity: 1; }
+  50% { transform: translateY(8px); opacity: 0.4; }
+}
+
+.animate-scroll-pulse {
+  animation: scroll-pulse 2s ease-in-out infinite;
+}
