@@ -1,6 +1,26 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  --color-rh-navy:        #0D1321;
+  --color-rh-navy-raised: #131B2E;
+  --color-rh-card:        #171F33;
+  --color-rh-card-hover:  #1B2743;
+  --color-rh-border:      #2A3654;
+  --color-rh-blue:        #1F60FD;
+  --color-rh-blue-hover:  #1A52D6;
+  --color-rh-blue-soft:   #7FA6FF;
+  --color-rh-white:       #FFFFFF;
+  --color-rh-text:        #E8ECF5;
+  --color-rh-muted:       #9AA6C2;
+
+  --font-outfit: var(--font-outfit-var), sans-serif;
+  --font-inter:  var(--font-inter-var),  sans-serif;
+
+  /* New typography system */
+  --font-display: var(--font-display-var), 'Arial', sans-serif;
+  --font-sans:    var(--font-sans-var),    'Arial', sans-serif;
+  --font-mono:    var(--font-mono-var),    'Courier New', monospace;
+}
 
 :root {
   --rh-navy:        #0D1321;
@@ -23,7 +43,6 @@ html { scroll-behavior: smooth; }
 body {
   background-color: var(--rh-navy);
   color: var(--rh-text);
-  font-family: var(--font-inter), sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 

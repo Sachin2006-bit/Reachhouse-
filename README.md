@@ -1,36 +1,83 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ReachHouse — Marketing Website
 
-## Getting Started
+Next.js 15 / Tailwind v4 / Framer Motion marketing site for ReachHouse, a premium influencer-reel production studio in Hyderabad.
 
-First, run the development server:
+## Getting started
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## How to swap logos
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Replace the SVG files in `/public/logo/`:
 
-## Learn More
+- `reachhouse-full-light.svg` — horizontal logo (navbar desktop, footer)
+- `reachhouse-mark.svg` — icon-only mark (navbar mobile, favicon source)
 
-To learn more about Next.js, take a look at the following resources:
+Keep the same filenames. Both are referenced directly from components.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## How to add a reel
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Open `content/site.ts` and append an item to the `reels` array:
 
-## Deploy on Vercel
+```ts
+{
+  id: 'my-brand-reel',          // unique slug
+  brand: 'My Brand',
+  type: 'Product launch reel',
+  tier: 'Gold',                 // 'Silver' | 'Gold' | 'Platinum'
+  duration: '0:30',
+  poster: '/posters/my-brand.jpg',   // place image in /public/posters/
+  videoSrc: 'https://cdn.example.com/my-reel.mp4',  // optional: hosted MP4
+  withInfluencer: true,
+},
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+For video playback, `videoSrc` (hosted MP4) is preferred over `embedUrl` (iframe) because embeds cannot be hover-previewed due to third-party autoplay restrictions.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## How to change contact details
+
+Search the codebase for `TODO: CONFIRM` — there are three in `components/Contact.tsx`:
+
+- Phone: `+91 7416 393 958`
+- Email: `info@reachhouse.in`
+- Address: `AltF Begumpet, Hyderabad`
+
+Update the `href` attributes and display text in that file. Also update `app/layout.tsx` JSON-LD (the `telephone` field).
+
+## How to deploy
+
+Push to GitHub, then import the repo into [Vercel](https://vercel.com/new). Zero configuration needed — Vercel auto-detects Next.js.
+
+For the dashboard URL (the "Go to Dashboard" button), set:
+
+```
+NEXT_PUBLIC_DASHBOARD_URL=https://your-dashboard.com
+```
+
+as an environment variable in Vercel project settings.
+
+## Brand palette
+
+All colors are defined as CSS custom properties in `app/globals.css` and referenced via `var(--rh-*)`. **No purple anywhere.**
+
+| Token | Value | Usage |
+|---|---|---|
+| `--rh-navy` | `#0D1321` | Page background |
+| `--rh-navy-raised` | `#131B2E` | Alternate section BG |
+| `--rh-card` | `#171F33` | Card surface |
+| `--rh-blue` | `#1F60FD` | Primary accent / CTAs |
+| `--rh-text` | `#E8ECF5` | Body text |
+| `--rh-muted` | `#9AA6C2` | Secondary text |
+
+## Tech stack
+
+- **Next.js 16** (App Router, static export)
+- **Tailwind CSS v4** (theme tokens in `app/globals.css`)
+- **Framer Motion 13** (animations, layout, AnimatePresence)
+- **Lucide React** (icons)
+- **TypeScript** (strict mode)

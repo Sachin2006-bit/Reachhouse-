@@ -7,7 +7,8 @@ export interface Reel {
   tier: ReelTier
   duration: string
   poster: string
-  videoSrc?: string   // preferred: hosted MP4
+  previewSrc?: string // lightweight MP4 for card hover (540px, no audio)
+  videoSrc?: string   // full-quality MP4 for lightbox
   embedUrl?: string   // fallback: iframe (hover-preview disabled for embeds)
   withInfluencer: boolean
 }
@@ -38,12 +39,17 @@ export interface Package {
 }
 
 export const stats: Stat[] = [
-  { value: '100+', label: 'Reels Delivered' },
+  { value: '1000+', label: 'Reels Delivered' },
   { value: '50+',  label: 'Brands Served' },
-  { value: '20+',  label: 'Influencers' },
-  { value: '4',    label: 'Reel Packages' },
+  { value: '500+', label: 'Influencers' },
   { value: '2026', label: 'Reel Brochure' },
 ]
+
+// Cloudinary base helper
+const CLD = 'https://res.cloudinary.com/drf5dacrb/video/upload'
+const poster  = (id: string) => `${CLD}/so_0,f_jpg,q_auto,w_600/${id}`
+const preview = (id: string) => `${CLD}/f_mp4,q_auto:good,w_540,c_limit,ac_none,vc_h264/${id}`
+const full    = (id: string) => `${CLD}/f_mp4,q_auto/${id}`
 
 export const reels: Reel[] = [
   {
@@ -52,7 +58,9 @@ export const reels: Reel[] = [
     type: 'Interior showcase reel',
     tier: 'Gold',
     duration: '0:28',
-    poster: '/posters/placeholder.svg',
+    poster:     poster('v1780742629/0606_becg5v'),
+    previewSrc: preview('v1780742629/0606_becg5v'),
+    videoSrc:   full('v1780742629/0606_becg5v'),
     withInfluencer: false,
   },
   {
@@ -61,7 +69,9 @@ export const reels: Reel[] = [
     type: 'Product launch reel',
     tier: 'Silver',
     duration: '0:32',
-    poster: '/posters/placeholder.svg',
+    poster:     poster('v1780743847/IMG_0159_bgvfvc'),
+    previewSrc: preview('v1780743847/IMG_0159_bgvfvc'),
+    videoSrc:   full('v1780743847/IMG_0159_bgvfvc'),
     withInfluencer: true,
   },
   {
@@ -70,7 +80,9 @@ export const reels: Reel[] = [
     type: 'Makeup tutorial reel',
     tier: 'Platinum',
     duration: '0:24',
-    poster: '/posters/placeholder.svg',
+    poster:     poster('v1780743796/0606_4_ioxttd'),
+    previewSrc: preview('v1780743796/0606_4_ioxttd'),
+    videoSrc:   full('v1780743796/0606_4_ioxttd'),
     withInfluencer: true,
   },
   {
@@ -79,7 +91,9 @@ export const reels: Reel[] = [
     type: 'Brand story reel',
     tier: 'Silver',
     duration: '0:19',
-    poster: '/posters/placeholder.svg',
+    poster:     poster('v1780743565/0606_2_z3a4hq'),
+    previewSrc: preview('v1780743565/0606_2_z3a4hq'),
+    videoSrc:   full('v1780743565/0606_2_z3a4hq'),
     withInfluencer: false,
   },
   {
@@ -88,7 +102,9 @@ export const reels: Reel[] = [
     type: 'Explainer reel',
     tier: 'Gold',
     duration: '0:30',
-    poster: '/posters/placeholder.svg',
+    poster:     poster('v1780744346/SRM-1_3_ay013k'),
+    previewSrc: preview('v1780744346/SRM-1_3_ay013k'),
+    videoSrc:   full('v1780744346/SRM-1_3_ay013k'),
     withInfluencer: false,
   },
   {
@@ -97,7 +113,9 @@ export const reels: Reel[] = [
     type: 'Brand film',
     tier: 'Platinum',
     duration: '0:26',
-    poster: '/posters/placeholder.svg',
+    poster:     poster('v1780744523/SnapInsta.to_AQOBgukk4pVhGadm70Gk9CKlGV7RNqWlykiYS9kG0ibbeiaWpG2KUsxocpDRwb8FGGqvR6TZgm3XEpmG0j4ZX47YGIkj9vzFS2zvtpI_ss87vq'),
+    previewSrc: preview('v1780744523/SnapInsta.to_AQOBgukk4pVhGadm70Gk9CKlGV7RNqWlykiYS9kG0ibbeiaWpG2KUsxocpDRwb8FGGqvR6TZgm3XEpmG0j4ZX47YGIkj9vzFS2zvtpI_ss87vq'),
+    videoSrc:   full('v1780744523/SnapInsta.to_AQOBgukk4pVhGadm70Gk9CKlGV7RNqWlykiYS9kG0ibbeiaWpG2KUsxocpDRwb8FGGqvR6TZgm3XEpmG0j4ZX47YGIkj9vzFS2zvtpI_ss87vq'),
     withInfluencer: false,
   },
   {
@@ -106,7 +124,9 @@ export const reels: Reel[] = [
     type: 'Course promo reel',
     tier: 'Silver',
     duration: '0:22',
-    poster: '/posters/placeholder.svg',
+    poster:     poster('v1780744659/Reel-_13_mywojj'),
+    previewSrc: preview('v1780744659/Reel-_13_mywojj'),
+    videoSrc:   full('v1780744659/Reel-_13_mywojj'),
     withInfluencer: false,
   },
   {
@@ -115,7 +135,9 @@ export const reels: Reel[] = [
     type: 'Cinematic reel',
     tier: 'Gold',
     duration: '0:41',
-    poster: '/posters/placeholder.svg',
+    poster:     poster('v1780744833/Reel-_18_2_eepksb'),
+    previewSrc: preview('v1780744833/Reel-_18_2_eepksb'),
+    videoSrc:   full('v1780744833/Reel-_18_2_eepksb'),
     withInfluencer: true,
   },
 ]

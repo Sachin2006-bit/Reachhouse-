@@ -1,14 +1,19 @@
 import { forwardRef } from 'react'
 import { cn } from '@/lib/utils'
 
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+type AnchorProps = React.AnchorHTMLAttributes<HTMLAnchorElement>
+type ButtonElementProps = React.ButtonHTMLAttributes<HTMLButtonElement>
+
+interface ButtonProps extends ButtonElementProps {
   variant?: 'primary' | 'ghost'
   size?: 'sm' | 'md' | 'lg'
   href?: string
+  target?: AnchorProps['target']
+  rel?: AnchorProps['rel']
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ variant = 'primary', size = 'md', href, className, children, ...props }, ref) => {
+  ({ variant = 'primary', size = 'md', href, target, rel, className, children, ...props }, ref) => {
     const base =
       'inline-flex items-center justify-center gap-2 rounded-full font-inter font-medium transition-all duration-300 cursor-pointer focus-visible:outline-2 focus-visible:outline-[var(--rh-blue)] focus-visible:outline-offset-2'
     const variants = {
@@ -25,8 +30,15 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     const cls = cn(base, variants[variant], sizes[size], className)
 
     if (href) {
+      const isExternal = href.startsWith('http') || href.startsWith('mailto') || href.startsWith('tel')
       return (
-        <a href={href} className={cls}>
+        <a
+          href={href}
+          className={cls}
+          target={target ?? (isExternal ? '_blank' : undefined)}
+          rel={rel ?? (isExternal ? 'noopener noreferrer' : undefined)}
+          onClick={(props as AnchorProps).onClick as React.MouseEventHandler<HTMLAnchorElement>}
+        >
           {children}
         </a>
       )
