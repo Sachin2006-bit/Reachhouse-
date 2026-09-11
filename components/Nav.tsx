@@ -42,9 +42,9 @@ export function Nav() {
             <Image
               src="https://res.cloudinary.com/drf5dacrb/image/upload/e_background_removal/v1789130569/image_2_we456a.png"
               alt="ReachHouse"
-              width={140}
-              height={32}
-              className="h-8 w-auto"
+              width={200}
+              height={48}
+              className="h-12 w-auto"
               style={{ filter: 'brightness(0) invert(1)' }}
               priority
             />
