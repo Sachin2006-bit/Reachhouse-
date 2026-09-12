@@ -1,0 +1,476 @@
+/* ─────────────────────────────────────────────────────────────────
+   ReachHouse Work Showcase — Arc Carousel
+   All geometry tunables are at the top. Match hero tokens exactly.
+   ───────────────────────────────────────────────────────────────── */
+
+/* ── Geometry tunables (mirrored in ArcCarousel.tsx constants) ── */
+:root {
+  /* Arc geometry — desktop */
+  --arc-radius-desktop:   2500px;   /* circle radius that cards ride */
+  --arc-spacing-desktop:  280px;    /* distance between card centres  */
+  --arc-visible-desktop:  7;        /* cards in DOM at once            */
+
+  /* Arc geometry — tablet (768–1279px) */
+  --arc-radius-tablet:    1800px;
+  --arc-spacing-tablet:   230px;
+  --arc-visible-tablet:   5;
+
+  /* Arc geometry — mobile (<768px) */
+  --arc-radius-mobile:    800px;
+  --arc-spacing-mobile:   190px;
+  --arc-visible-mobile:   3;
+
+  --arc-tilt-gain:        0.65;     /* tangent tilt multiplier         */
+  --arc-speed:            0.286;    /* progress units / second (1/3.5) */
+  --arc-card-top:         24px;     /* distance from arc-area top to apex */
+
+  /* Card */
+  --card-w:               clamp(180px, 15vw, 280px);
+  --card-radius:          18px;
+  --card-rim-color:       rgba(255,255,255,0.08);
+
+  /* Bloom behind centre card */
+  --bloom-color:          #2264FD;
+  --bloom-blur:           80px;
+  --bloom-opacity:        0.22;
+
+  /* Token aliases (match hero) */
+  --rh-navy-950:          #050B18;
+  --rh-navy-900:          #0A1428;
+  --rh-blue-600:          #2264FD;
+  --rh-blue-500:          #3D7BFF;
+  --rh-blue-300:          #7FB0FF;
+}
+
+/* ── Section ─────────────────────────────────────────────────────── */
+.work-section {
+  background: var(--rh-navy-950);
+  /* Prevent cards from causing horizontal page overflow */
+  overflow-x: clip;
+}
+
+/* ── Heading ─────────────────────────────────────────────────────── */
+.work-heading {
+  padding: clamp(3.5rem, 7svh, 6rem) clamp(1.5rem, 5vw, 7rem) 0;
+}
+
+.work-heading h2 {
+  font-family: var(--font-display, system-ui);
+  font-size: clamp(2rem, 4.5vw, 3.75rem);
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+  margin: 0;
+}
+
+.work-heading p {
+  font-family: var(--font-sans, system-ui);
+  font-size: clamp(1rem, 1.5vw, 1.2rem);
+  color: var(--rh-text-mut, #93A6C6);
+  margin: clamp(0.75rem, 1.5vw, 1.25rem) 0 0;
+  max-width: 65ch;
+  line-height: 1.55;
+}
+
+/* ── Arc area ────────────────────────────────────────────────────── */
+.arc-area {
+  position: relative;
+  margin-top: clamp(2rem, 4svh, 3.5rem);
+  /* Height must contain apex card + max sag + meta text at each breakpoint.
+     Mobile: 320 (cardH) + 23 (sag) + 56 (meta) + 24 (top) + 20 (margin) = 443px → 460px
+     Tablet: 320 + 60 + 56 + 24 + 20 = 480px → 500px
+     Desktop: 498 (max cardH at 280px wide) + 146 (sag) + 56 + 24 + 36 (margin) = 760px */
+  height: 460px;
+  /* Edge fade — same left/right mask as hero marquee */
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 8%,
+    black 92%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 8%,
+    black 92%,
+    transparent 100%
+  );
+  overflow: hidden;
+  /* Tab focus target */
+  outline: none;
+  cursor: grab;
+}
+
+.arc-area:active {
+  cursor: grabbing;
+}
+
+.arc-area:focus-visible {
+  outline: 2px solid var(--rh-blue-300, #7FB0FF);
+  outline-offset: -2px;
+}
+
+/* Blue bloom behind the arc apex */
+.arc-bloom {
+  position: absolute;
+  top: var(--arc-card-top);
+  left: 50%;
+  transform: translateX(-50%);
+  width: clamp(260px, 35vw, 500px);
+  height: clamp(200px, 28vw, 400px);
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center,
+    rgba(34, 100, 253, 0.22) 0%,
+    transparent 70%
+  );
+  filter: blur(var(--bloom-blur));
+  opacity: var(--bloom-opacity);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Arc stage ───────────────────────────────────────────────────── */
+/*
+ * Centering anchor. left:50% puts the 0-coordinate at viewport centre.
+ * The rAF loop NEVER writes transform on this element — only on .arc-card-wrap
+ * children — so the centring is never stomped.
+ */
+.arc-stage {
+  position: absolute;
+  left: 50%;
+  /* top is set inline from CARD_TOP constant */
+  /* width:0 so the element itself has zero footprint at the origin */
+  width: 0;
+  height: 0;
+}
+
+/* ── Card wrapper ────────────────────────────────────────────────── */
+/* rAF writes transform/opacity/zIndex/visibility to this element. */
+.arc-card-wrap {
+  position: absolute;
+  left: 0;
+  top: 0;
+  /* width set inline per config.cardW */
+  will-change: transform;
+}
+
+/* ── Card button ─────────────────────────────────────────────────── */
+.arc-card {
+  display: block;
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+  -webkit-tap-highlight-color: transparent;
+  /* Touch target */
+  touch-action: manipulation;
+}
+
+.arc-card:focus-visible {
+  outline: none;
+}
+
+.arc-card:focus-visible .arc-card-media {
+  outline: 2px solid var(--rh-blue-300, #7FB0FF);
+  outline-offset: 3px;
+}
+
+/* ── Card media box ──────────────────────────────────────────────── */
+/* height set inline per config.cardH */
+.arc-card-media {
+  position: relative;
+  width: 100%;
+  border-radius: var(--card-radius);
+  overflow: hidden;
+  background: var(--rh-navy-900);
+}
+
+.arc-card-img {
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+.arc-card-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 0.4s ease;
+}
+
+/* 1px inner rim for depth */
+.arc-card-rim {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--card-radius);
+  box-shadow: inset 0 0 0 1px var(--card-rim-color);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Play affordance */
+.arc-card-play {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.arc-card-play--visible {
+  opacity: 1;
+}
+
+.arc-card:hover .arc-card-play,
+.arc-card:focus-visible .arc-card-play {
+  opacity: 1;
+}
+
+.arc-card-play-btn {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: rgba(31, 96, 253, 0.88);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+/* ── Card meta text (below the media box, inside the button) ─────── */
+.arc-card-meta {
+  padding: 10px 2px 0;
+}
+
+.arc-card-client {
+  font-family: var(--font-sans, system-ui);
+  font-size: clamp(0.8rem, 1.1vw, 0.92rem);
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.arc-card-title {
+  font-family: var(--font-sans, system-ui);
+  font-size: clamp(0.72rem, 0.95vw, 0.82rem);
+  font-weight: 400;
+  color: var(--rh-text-mut, #93A6C6);
+  margin: 2px 0 0;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Lightbox ────────────────────────────────────────────────────── */
+dialog.arc-lightbox {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  border: none;
+  padding: 0;
+  background: transparent;
+  overflow: hidden;
+}
+
+/* Only show flex layout when dialog is actually open ([open] attr present).
+   Without this, display:flex overrides the UA stylesheet's dialog:not([open]){display:none}
+   and the dialog covers the page even when logically closed. */
+dialog.arc-lightbox[open] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+dialog.arc-lightbox::backdrop {
+  background: rgba(5, 11, 24, 0.88);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+}
+
+.arc-lb-inner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-height: 100svh;
+  padding: clamp(1rem, 3svh, 2.5rem) 1rem;
+}
+
+.arc-lb-video {
+  display: block;
+  width: auto;
+  max-height: 88svh;
+  max-width: min(calc(88svh * 9 / 16), calc(100vw - 2rem));
+  aspect-ratio: 9 / 16;
+  border-radius: 14px;
+  object-fit: contain;
+  background: var(--rh-navy-950);
+}
+
+/* Lightbox control bar */
+.arc-lb-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.25rem;
+  flex-shrink: 0;
+}
+
+.arc-lb-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(10, 20, 40, 0.72);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+  flex-shrink: 0;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.arc-lb-btn:hover {
+  background: rgba(34, 100, 253, 0.5);
+  border-color: var(--rh-blue-500, #3D7BFF);
+}
+
+.arc-lb-btn:focus-visible {
+  outline: 2px solid var(--rh-blue-300, #7FB0FF);
+  outline-offset: 2px;
+}
+
+.arc-lb-btn--play {
+  width: 60px;
+  height: 60px;
+  background: rgba(31, 96, 253, 0.9);
+  border-color: transparent;
+}
+
+.arc-lb-btn--play:hover {
+  background: rgba(31, 96, 253, 1);
+}
+
+/* Close button — top-right, clears safe area */
+.arc-lb-close {
+  position: absolute;
+  top: max(env(safe-area-inset-top, 0px), 1rem);
+  right: 1rem;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(10, 20, 40, 0.72);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 10;
+  transition: background 0.2s ease;
+}
+
+.arc-lb-close:hover {
+  background: rgba(220, 40, 40, 0.6);
+}
+
+.arc-lb-close:focus-visible {
+  outline: 2px solid var(--rh-blue-300, #7FB0FF);
+  outline-offset: 2px;
+}
+
+/* Sound prompt */
+.arc-lb-sound-prompt {
+  position: absolute;
+  bottom: calc(44px + 2.5rem + env(safe-area-inset-bottom, 0px));
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(10, 20, 40, 0.92);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 100px;
+  padding: 0.5rem 1.25rem;
+  cursor: pointer;
+  color: white;
+  font-size: 0.875rem;
+  font-family: var(--font-sans, system-ui);
+  white-space: nowrap;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: background 0.2s ease;
+}
+
+.arc-lb-sound-prompt:hover {
+  background: rgba(34, 100, 253, 0.7);
+}
+
+/* ── Reduced motion fallback ─────────────────────────────────────── */
+.arc-reduced-row {
+  display: flex;
+  gap: clamp(1rem, 2.5vw, 1.75rem);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding: clamp(1.5rem, 4svh, 2.5rem) clamp(1.5rem, 5vw, 7rem);
+}
+
+.arc-reduced-row::-webkit-scrollbar { display: none; }
+
+.arc-reduced-item {
+  scroll-snap-align: center;
+  flex-shrink: 0;
+}
+
+/* ── Section bottom padding ──────────────────────────────────────── */
+.work-section-bottom {
+  padding-bottom: clamp(3rem, 6svh, 5rem);
+}
+
+/* ── Responsive ──────────────────────────────────────────────────── */
+@media (min-width: 768px) {
+  .arc-area {
+    height: 500px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .arc-area {
+    height: 760px;
+  }
+}
+
+/* ── Reduced motion ──────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .arc-card-wrap {
+    will-change: auto;
+  }
+  .arc-card-play {
+    transition: none;
+  }
+}

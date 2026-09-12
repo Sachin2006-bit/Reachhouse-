@@ -9,10 +9,9 @@ interface MobileMenuProps {
   open: boolean
   onClose: () => void
   links: { label: string; href: string }[]
-  dashboardUrl: string
 }
 
-export function MobileMenu({ open, onClose, links, dashboardUrl }: MobileMenuProps) {
+export function MobileMenu({ open, onClose, links }: MobileMenuProps) {
   useEffect(() => {
     if (open) document.body.style.overflow = 'hidden'
     else document.body.style.overflow = ''
@@ -50,10 +49,7 @@ export function MobileMenu({ open, onClose, links, dashboardUrl }: MobileMenuPro
               </motion.a>
             ))}
           </nav>
-          <div className="p-6 flex flex-col gap-3 border-t border-[var(--rh-border)]">
-            <Button variant="ghost" href={dashboardUrl} className="w-full justify-center">
-              Go to Dashboard
-            </Button>
+          <div className="p-6 border-t border-[var(--rh-border)]">
             <Button variant="primary" href={WA_URL} onClick={onClose} className="w-full justify-center">
               Start a project
             </Button>

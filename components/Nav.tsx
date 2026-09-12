@@ -25,8 +25,6 @@ export function Nav() {
     return () => window.removeEventListener('scroll', handler)
   }, [])
 
-  const dashboardUrl = process.env.NEXT_PUBLIC_DASHBOARD_URL || '#'
-
   return (
     <>
       <header
@@ -71,9 +69,6 @@ export function Nav() {
 
           {/* Desktop buttons */}
           <div className="hidden lg:flex items-center gap-3">
-            <Button variant="ghost" size="sm" href={dashboardUrl}>
-              Go to Dashboard
-            </Button>
             <Button variant="primary" size="sm" href={WA_URL}>
               Start a project
             </Button>
@@ -94,7 +89,6 @@ export function Nav() {
         open={mobileOpen}
         onClose={() => setMobileOpen(false)}
         links={navLinks}
-        dashboardUrl={dashboardUrl}
       />
     </>
   )

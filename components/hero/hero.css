@@ -1,0 +1,395 @@
+/* ─────────────────────────────────────────────
+   ReachHouse Hero — colocated CSS
+   All tunables are at the top. Edit these first
+   before touching anything else.
+   ───────────────────────────────────────────── */
+
+/* ── Tunables ───────────────────────────────── */
+:root {
+  /* Arc geometry */
+  --arc-size:          140vmax;   /* diameter of the full circle  */
+  --arc-show:          13vmax;    /* how much of the top is visible */
+  --arc-rim:           2.5px;     /* thickness of the hot rim line */
+  --arc-rim-color:     #3D7BFF;   /* --rh-blue-500                 */
+  --arc-body-top:      #0A1428;   /* --rh-navy-900                 */
+  --arc-body-base:     #050B18;   /* --rh-navy-950                 */
+
+  /* Bloom (the soft glow behind the rim) */
+  --bloom-opacity:     0.50;
+  --bloom-blur:        44px;
+  --bloom-color:       #2264FD;   /* --rh-blue-600                 */
+
+  /* Gradient field */
+  --field-speed-a:     34s;
+  --field-speed-b:     26s;
+  --field-speed-c:     41s;
+  --blob-blur-a:       80px;
+  --blob-blur-b:       60px;
+  --blob-blur-c:       100px;
+
+  /* Grain texture */
+  --grain-opacity:     0.038;
+
+  /* Hero token palette */
+  --rh-navy-950:       #050B18;
+  --rh-navy-900:       #0A1428;
+  --rh-navy-800:       #10203F;
+  --rh-blue-600:       #2264FD;
+  --rh-blue-500:       #3D7BFF;
+  --rh-blue-300:       #7FB0FF;
+  --rh-cyan-300:       #6FE3FF;
+}
+
+/* ── Stage ──────────────────────────────────── */
+.hero-outer {
+  position: relative;
+  height: 180svh;
+}
+
+.hero-stage {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  width: 100%;
+  overflow: hidden;
+  background: var(--rh-navy-950);
+  contain: layout style;
+  /* Flex column: content block grows, marquee sits at bottom */
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Shared layer base ──────────────────────── */
+/* Absolute layers (gradient, arc, grain) sit behind flex children */
+.hero-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* ── Gradient field blobs ───────────────────── */
+/* Rebalanced to be horizontally symmetric — mirror-test passes */
+.hero-field {
+  will-change: transform;
+}
+
+.hero-blob {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  will-change: transform;
+}
+
+/* Blob-a: primary blue glow — centered at bottom, over the arc apex */
+.hero-blob-a {
+  width: 55vmax;
+  height: 45vmax;
+  bottom: -5%;
+  left: calc(50% - 27.5vmax);
+  background: radial-gradient(ellipse at center,
+    rgba(34, 100, 253, 0.25) 0%,
+    transparent 70%
+  );
+  filter: blur(var(--blob-blur-a));
+  animation: blobA var(--field-speed-a) ease-in-out infinite alternate;
+  animation-delay: 0s;
+}
+
+/* Blob-b: deep navy depth layer — centered upper, adds vertical depth */
+.hero-blob-b {
+  width: 60vmax;
+  height: 50vmax;
+  top: -15%;
+  left: calc(50% - 30vmax);
+  background: radial-gradient(ellipse at center,
+    rgba(16, 32, 63, 0.80) 0%,
+    transparent 65%
+  );
+  filter: blur(var(--blob-blur-b));
+  animation: blobB var(--field-speed-b) ease-in-out infinite alternate;
+  animation-delay: -8s;
+}
+
+/* Blob-c: cyan accent — centered mid-lower, above the arc rim */
+.hero-blob-c {
+  width: 40vmax;
+  height: 35vmax;
+  bottom: 18%;
+  left: calc(50% - 20vmax);
+  background: radial-gradient(ellipse at center,
+    rgba(111, 227, 255, 0.10) 0%,
+    transparent 60%
+  );
+  filter: blur(var(--blob-blur-c));
+  animation: blobC var(--field-speed-c) ease-in-out infinite alternate;
+  animation-delay: -19s;
+}
+
+/* ── Blob keyframes ─────────────────────────── */
+/* Use only translate3d + scale — never background-position/filter/width */
+@keyframes blobA {
+  0%   { transform: translate3d(0,    0,   0) scale(1);    }
+  33%  { transform: translate3d(-3%,  5%,  0) scale(1.07); }
+  66%  { transform: translate3d(3%,  -2%,  0) scale(0.95); }
+  100% { transform: translate3d(-1%,  2%,  0) scale(1.04); }
+}
+
+@keyframes blobB {
+  0%   { transform: translate3d(0,    0,   0) scale(1);    }
+  33%  { transform: translate3d(4%,  -3%,  0) scale(1.05); }
+  66%  { transform: translate3d(-3%,  4%,  0) scale(0.97); }
+  100% { transform: translate3d(2%,   1%,  0) scale(1.03); }
+}
+
+@keyframes blobC {
+  0%   { transform: translate3d(0,    0,   0) scale(1);    }
+  33%  { transform: translate3d(-4%,  3%,  0) scale(1.08); }
+  66%  { transform: translate3d(4%,  -4%,  0) scale(0.93); }
+  100% { transform: translate3d(-2%, -2%,  0) scale(1.05); }
+}
+
+/* ── Arc / horizon ──────────────────────────── */
+/*
+  Two-layer approach to prevent Framer Motion from stomping translateX(-50%):
+  .hero-arc-outer  → plain div, handles LEFT + translateX(-50%) centering only
+  .hero-arc-inner  → motion.div, handles translateY + scale only
+*/
+.hero-arc-outer {
+  position: absolute;
+  width: var(--arc-size);
+  height: var(--arc-size);
+  bottom: calc(-1 * var(--arc-size) + var(--arc-show));
+  /* Centering: this transform is NEVER touched by Framer Motion */
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.hero-arc-inner {
+  width: 100%;
+  height: 100%;
+  will-change: transform;
+}
+
+.hero-arc {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse 100% 60% at 50% 100%,
+    var(--arc-body-top) 0%,
+    var(--arc-body-base) 100%
+  );
+  box-shadow:
+    inset 0 var(--arc-rim) 0 0 var(--arc-rim-color),
+    inset 0 calc(var(--arc-rim) * 3) 12px -4px rgba(61, 123, 255, 0.18);
+}
+
+/* Bloom: symmetric within the arc circle — its left/width centre it exactly over the rim apex */
+.hero-arc-bloom {
+  position: absolute;
+  top: -2vmax;
+  left: 10%;
+  width: 80%;
+  height: 8vmax;
+  border-radius: 50%;
+  background: var(--bloom-color);
+  filter: blur(var(--bloom-blur));
+  opacity: var(--bloom-opacity);
+  will-change: opacity;
+}
+
+/* ── Grain texture ──────────────────────────── */
+.hero-grain {
+  position: absolute;
+  inset: 0;
+  opacity: var(--grain-opacity);
+  pointer-events: none;
+}
+
+/* ── Content (flex child, fills remaining height above marquee) ─ */
+.hero-content {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  /* Horizontal padding */
+  padding-left:  clamp(1.5rem, 5vw, 7rem);
+  padding-right: clamp(1.5rem, 5vw, 7rem);
+  /* Top clears the fixed nav */
+  padding-top: calc(5rem + env(safe-area-inset-top, 0px));
+  /* Bottom creates the mandatory gap between buttons and marquee:
+     ≥1024px: 6rem ≈ 96px  |  768-1023px: 4rem ≈ 64px  |  <768px: 3rem ≈ 48px */
+  padding-bottom: 6rem;
+  pointer-events: none;
+}
+
+.hero-content > * {
+  pointer-events: auto;
+}
+
+.hero-headline {
+  font-size: clamp(2.4rem, 6vw, 5.5rem);
+  line-height: 1.04;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+  max-width: 14ch;
+  margin: 0;
+  font-family: var(--font-display, system-ui);
+  font-weight: 600;
+}
+
+.hero-subhead {
+  font-size: clamp(1rem, 1.6vw, 1.35rem);
+  line-height: 1.55;
+  color: var(--rh-text-mut, #93A6C6);
+  max-width: 58ch;
+  margin: clamp(0.9rem, 2.5vw, 1.75rem) 0 0;
+  font-family: var(--font-sans, system-ui);
+  font-weight: 400;
+}
+
+.hero-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: clamp(1.25rem, 3vw, 2.5rem);
+}
+
+/* ── Service marquee (flex child, anchored to stage bottom) ─── */
+.hero-marquee-wrap {
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+  overflow: hidden;
+  /* Clear arc rim and safe area */
+  padding-bottom: calc(clamp(0.75rem, 1.5vmax, 1.5rem) + env(safe-area-inset-bottom, 0px));
+  padding-top: 0.5rem;
+  /* Edge fade */
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 10%,
+    black 90%,
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 10%,
+    black 90%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+
+.hero-marquee-track {
+  display: flex;
+  align-items: center;
+  width: max-content;
+  /* 45s desktop */
+  animation: marquee 45s linear infinite;
+  padding: 0.25rem 0;
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* ── Service item ───────────────────────────── */
+.hero-service-item {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  font-size: clamp(0.9rem, 1.1vw, 1.05rem);
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--rh-text-mut, #93A6C6);
+  opacity: 0.7;
+  font-family: var(--font-sans, system-ui);
+  white-space: nowrap;
+}
+
+/* Dot separator between items */
+.hero-service-dot {
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba(34, 100, 253, 0.6);
+  flex-shrink: 0;
+  margin: 0 2.5rem;
+}
+
+/* ── Reduced motion ─────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .hero-blob-a,
+  .hero-blob-b,
+  .hero-blob-c {
+    animation: none;
+  }
+
+  .hero-marquee-track {
+    animation: none;
+  }
+
+  .hero-outer {
+    height: 100svh;
+  }
+}
+
+/* ── Mobile (<768px) ────────────────────────── */
+@media (max-width: 767px) {
+  :root {
+    --blob-blur-a: 50px;
+    --blob-blur-b: 30px;
+    --blob-blur-c: 55px;
+    --bloom-blur:  28px;
+  }
+
+  .hero-outer {
+    height: 140svh;
+  }
+
+  /* Hide depth blob on mobile to reduce GPU load */
+  .hero-blob-b {
+    display: none;
+  }
+
+  .hero-content {
+    padding-top: calc(4.5rem + env(safe-area-inset-top, 0px));
+    /* Mobile min gap: 3rem ≈ 48px */
+    padding-bottom: 3rem;
+  }
+
+  .hero-buttons {
+    flex-direction: column;
+    width: 100%;
+    max-width: 320px;
+  }
+
+  .hero-marquee-track {
+    /* 32s mobile */
+    animation-duration: 32s;
+  }
+
+  .hero-service-dot {
+    margin: 0 1.5rem;
+  }
+}
+
+/* ── Tablet (768–1023px) ────────────────────── */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .hero-content {
+    /* Tablet min gap: 4rem ≈ 64px */
+    padding-bottom: 4rem;
+  }
+
+  .hero-marquee-track {
+    animation-duration: 38s;
+  }
+}

@@ -1,5 +1,5 @@
 import { Nav } from '@/components/Nav'
-import { Hero } from '@/components/Hero'
+import { Hero } from '@/components/hero/Hero'
 import { StatsBand } from '@/components/StatsBand'
 import { WorkSection } from '@/components/work/WorkSection'
 import { Process } from '@/components/Process'
