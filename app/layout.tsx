@@ -48,10 +48,10 @@ const geistMono = localFont({
 export const metadata: Metadata = {
   metadataBase: new URL('https://reachhouse.in'),
   title: 'ReachHouse — Influencer reels that grow your brand',
-  description: 'ReachHouse is a premium influencer-reel production studio in Hyderabad. We script, shoot, edit and strategize reels that grow your brand, drive sales, and capture leads.',
+  description: 'ReachHouse is a Hyderabad influencer and performance marketing agency: influencer marketing, Meta ads, branding, social media management and reel production.',
   openGraph: {
     title: 'ReachHouse — Influencer reels that grow your brand',
-    description: 'Premium influencer-led reel production. Script · Shoot · Edit · Strategy.',
+    description: 'ReachHouse is a Hyderabad influencer and performance marketing agency: influencer marketing, Meta ads, branding, social media management and reel production.',
     url: 'https://reachhouse.in',
     siteName: 'ReachHouse',
     images: [{ url: '/og-image.svg', width: 1200, height: 630, alt: 'ReachHouse' }],
@@ -61,7 +61,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'ReachHouse — Influencer reels that grow your brand',
-    description: 'Premium influencer-led reel production in Hyderabad.',
+    description: 'ReachHouse is a Hyderabad influencer and performance marketing agency: influencer marketing, Meta ads, branding, social media management and reel production.',
     images: ['/og-image.svg'],
   },
 }

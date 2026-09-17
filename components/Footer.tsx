@@ -1,10 +1,11 @@
 import Image from 'next/image'
 
 const navLinks = [
-  { label: 'Work',    href: '#work' },
-  { label: 'Process', href: '#process' },
-  { label: 'Pricing', href: '#pricing' },
-  { label: 'Contact', href: '#contact' },
+  { label: 'Work',     href: '#work' },
+  { label: 'Services', href: '#services' },
+  { label: 'Process',  href: '#process' },
+  { label: 'Pricing',  href: '#pricing' },
+  { label: 'Contact',  href: '#contact' },
 ]
 
 // Social icons as inline SVG (lucide-react v1 dropped brand icons)

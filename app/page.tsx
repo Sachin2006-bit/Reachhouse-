@@ -1,6 +1,7 @@
 import { Nav } from '@/components/Nav'
 import { Hero } from '@/components/hero/Hero'
 import { StatsBand } from '@/components/StatsBand'
+import { WhatWeDo } from '@/components/WhatWeDo'
 import { WorkSection } from '@/components/work/WorkSection'
 import { Process } from '@/components/Process'
 import { Pricing } from '@/components/Pricing'
@@ -15,6 +16,7 @@ export default function Home() {
       <Hero />
       <StatsBand />
       <WorkSection />
+      <WhatWeDo />
       <Process />
       <Pricing />
       <Contact />

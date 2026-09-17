@@ -8,16 +8,17 @@ import { useScrollSpy } from '@/lib/useScrollSpy'
 import { WA_URL } from '@/lib/constants'
 
 const navLinks = [
-  { label: 'Work',    href: '#work' },
-  { label: 'Process', href: '#process' },
-  { label: 'Pricing', href: '#pricing' },
-  { label: 'Contact', href: '#contact' },
+  { label: 'Work',     href: '#work' },
+  { label: 'Services', href: '#services' },
+  { label: 'Process',  href: '#process' },
+  { label: 'Pricing',  href: '#pricing' },
+  { label: 'Contact',  href: '#contact' },
 ]
 
 export function Nav() {
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
-  const activeId = useScrollSpy(['work', 'process', 'pricing', 'contact'])
+  const activeId = useScrollSpy(['work', 'services', 'process', 'pricing', 'contact'])
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 40)
